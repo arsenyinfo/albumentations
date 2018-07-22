@@ -48,8 +48,8 @@ def strong_aug(p=.5):
         HueSaturationValue(p=0.3),
     ], p=p)
 
-image = np.ones((300, 300))
-mask = np.ones((300, 300))
+image = np.ones((300, 300, 3), dtype=np.uint8)
+mask = np.ones((300, 300), dtype=np.uint8)
 whatever_data = "my name"
 augmentation = strong_aug(p=0.9)
 data = {"image": image, "mask": mask, "whatever_data": whatever_data, "additional": "hello"}
@@ -57,16 +57,32 @@ augmented = augmentation(**data)
 image, mask, whatever_data, additional = augmented["image"], augmented["mask"], augmented["whatever_data"], augmented["additional"]
 ```
 
-See `example.ipynb`
+See [`example.ipynb`](notebooks/example.ipynb)
+
 
 ## Installation
-You can use pip to install the latest version from GitHub:
+You can use pip to install albumentations:
+```
+pip install albumentations
+```
+
+If you want to get the latest version of the code before it is released on PyPI you can install the library from GitHub:
 ```
 pip install -U git+https://github.com/albu/albumentations
 ```
 
+
 ## Documentation
 The full documentation is available at [albumentations.readthedocs.io](https://albumentations.readthedocs.io/en/latest/).
+
+
+## Demo
+You can use this [Google Colaboratory notebook](https://colab.research.google.com/drive/1JuZ23u0C0gx93kV0oJ8Mq0B6CBYhPLXy#scrollTo=GwFN-In3iagp&forceEdit=true&offline=true&sandboxMode=true)
+to adjust image augmentation parameters and see the resulting images.
+
+
+## Working with non-8-bit images
+[`example_16_bit_tiff.ipynb`](notebooks/example_16_bit_tiff.ipynb) shows how albumentations can be used to work with non-8-bit images (such as 16-bit and 32-bit TIFF images).
 
 
 ## Benchmarking results
@@ -82,9 +98,9 @@ Results for running the benchmark on first 2000 images from the ImageNet validat
 | VerticalFlip      |    **0.178**    |  0.3899  |             0.2326              |               0.2308                  |  0.1799  |
 | Rotate            |    **3.8538**   |  4.0581  |             16.16               |               9.5011                  | 50.8632  |
 | ShiftScaleRotate  |    **2.0605**   |  2.4478  |            18.5401              |              10.6062                  | 47.0568  |
-| Brightness        |     2.5301      |**2.3607**|             4.6854              |               3.4814                  |  9.9237  |
+| Brightness        |    **2.1018**   |  2.3607  |             4.6854              |               3.4814                  |  9.9237  |
 | ShiftHSV          |    **10.3925**  | 14.2255  |            34.7778              |              27.0215                  |    -     |
-| ShiftRGB          |     4.3094      |**2.1989**|               -                 |                 -                     |  3.0598  |
+| ShiftRGB          |     2.6159      |**2.1989**|               -                 |                 -                     |  3.0598  |
 | Gamma             |     1.4832      |    -     |            **1.1397**           |               1.1447                  |    -     |
 | Grayscale         |    **1.2048**   |  5.3895  |             1.6826              |               1.2721                  |    -     |
 
@@ -122,6 +138,14 @@ make html
 Alternatively, you can start a web server that rebuilds the documentation
 automatically when a change is detected by running `make livehtml`
 
+
+## Comments
+In some systems, in the multiple GPU regime PyTorch may deadlock the DataLoader if OpenCV was compiled with OpenCL optimizations. Adding the following two lines before the library import may help. For more details [https://github.com/pytorch/pytorch/issues/1355](https://github.com/pytorch/pytorch/issues/1355) 
+
+```python
+cv2.setNumThreads(0)	
+cv2.ocl.setUseOpenCL(False)
+```
 
 ### Thanks:
 Special thanks to [@creafz](https://github.com/creafz) for refactoring, documentation, tests, CI and benchmarks. Awesome work!

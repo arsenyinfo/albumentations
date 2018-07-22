@@ -1,7 +1,6 @@
-import cv2
+from __future__ import absolute_import, division
 
-cv2.setNumThreads(0)
-cv2.ocl.setUseOpenCL(False)
+import cv2
 
 import numpy as np
 
@@ -12,7 +11,7 @@ __all__ = ['Blur', 'VerticalFlip', 'HorizontalFlip', 'Flip', 'Normalize', 'Trans
            'RandomRotate90', 'Rotate', 'ShiftScaleRotate', 'CenterCrop', 'OpticalDistortion', 'GridDistortion',
            'ElasticTransform', 'HueSaturationValue', 'PadIfNeeded', 'RGBShift', 'RandomBrightness', 'RandomContrast',
            'MotionBlur', 'MedianBlur', 'GaussNoise', 'CLAHE', 'ChannelShuffle', 'InvertImg', 'ToGray',
-           'JpegCompression']
+           'JpegCompression', 'Cutout', 'ToFloat', 'FromFloat']
 
 
 class PadIfNeeded(DualTransform):
@@ -24,11 +23,14 @@ class PadIfNeeded(DualTransform):
     Targets:
         image, mask
 
+    Image types:
+        uint8, float32
+
     TODO: add application to boxes
     """
 
     def __init__(self, min_height=1024, min_width=1024, p=1.0):
-        super().__init__(p)
+        super(PadIfNeeded, self).__init__(p)
         self.min_height = min_height
         self.min_width = min_width
 
@@ -47,6 +49,9 @@ class VerticalFlip(DualTransform):
 
     Targets:
         image, mask, bboxes
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, **params):
@@ -64,6 +69,9 @@ class HorizontalFlip(DualTransform):
 
     Targets:
         image, mask, bboxes
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, **params):
@@ -81,6 +89,9 @@ class Flip(DualTransform):
 
     Targets:
         image, mask
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, d=0, **params):
@@ -106,6 +117,9 @@ class Transpose(DualTransform):
 
     Targets:
         image, mask
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, **params):
@@ -120,6 +134,9 @@ class RandomRotate90(DualTransform):
 
     Targets:
         image, mask
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, factor=0, **params):
@@ -151,6 +168,9 @@ class Rotate(DualTransform):
 
     Targets:
         image, mask
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, limit=90, interpolation=cv2.INTER_LINEAR, border_mode=cv2.BORDER_REFLECT_101, p=.5):
@@ -187,6 +207,9 @@ class ShiftScaleRotate(DualTransform):
 
     Targets:
         image, mask
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, shift_limit=0.0625, scale_limit=0.1, rotate_limit=45, interpolation=cv2.INTER_LINEAR,
@@ -218,10 +241,13 @@ class CenterCrop(DualTransform):
 
     Targets:
         image, mask
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, height, width, p=1.0):
-        super().__init__(p)
+        super(CenterCrop, self).__init__(p)
         self.height = height
         self.width = width
 
@@ -239,10 +265,13 @@ class RandomCrop(DualTransform):
 
         Targets:
             image, mask
+
+        Image types:
+            uint8, float32
         """
 
     def __init__(self, height, width, p=1.0):
-        super().__init__(p)
+        super(RandomCrop, self).__init__(p)
         self.height = height
         self.width = width
 
@@ -255,6 +284,13 @@ class RandomCrop(DualTransform):
 
 
 class OpticalDistortion(DualTransform):
+    """
+    Targets:
+        image, mask
+
+    Image types:
+        uint8, float32
+    """
     def __init__(self, distort_limit=0.05, shift_limit=0.05, interpolation=cv2.INTER_LINEAR,
                  border_mode=cv2.BORDER_REFLECT_101, p=0.5):
         super(OpticalDistortion, self).__init__(p)
@@ -273,6 +309,13 @@ class OpticalDistortion(DualTransform):
 
 
 class GridDistortion(DualTransform):
+    """
+    Targets:
+        image, mask
+
+    Image types:
+        uint8, float32
+    """
     def __init__(self, num_steps=5, distort_limit=0.3, interpolation=cv2.INTER_LINEAR,
                  border_mode=cv2.BORDER_REFLECT_101, p=0.5):
         super(GridDistortion, self).__init__(p)
@@ -296,6 +339,13 @@ class GridDistortion(DualTransform):
 
 
 class ElasticTransform(DualTransform):
+    """
+    Targets:
+        image, mask
+
+    Image types:
+        uint8, float32
+    """
     def __init__(self, alpha=1, sigma=50, alpha_affine=50, interpolation=cv2.INTER_LINEAR,
                  border_mode=cv2.BORDER_REFLECT_101, p=0.5):
         super(ElasticTransform, self).__init__(p)
@@ -317,38 +367,75 @@ class Normalize(ImageOnlyTransform):
     """Divides pixel values by 255 = 2**8 - 1, subtracts mean per channel and divides by std per channel
 
         Args:
-            mean (float, float, float) - mean values
-            std  (float, float, float) - std values
+            mean (float, float, float): mean values
+            std  (float, float, float): std values
+            max_pixel_value (float): maximum possible pixel value
 
         Targets:
             image
+
+        Image types:
+            uint8, float32
         """
 
-    def __init__(self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), p=1.0):
-        super().__init__(p)
+    def __init__(self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), max_pixel_value=255.0, p=1.0):
+        super(Normalize, self).__init__(p)
         self.mean = mean
         self.std = std
+        self.max_pixel_value = max_pixel_value
 
     def apply(self, image, **params):
-        return F.normalize(image, self.mean, self.std)
+        return F.normalize(image, self.mean, self.std, self.max_pixel_value)
+
+
+class Cutout(ImageOnlyTransform):
+    """CoarseDropout of the square regions in the image
+
+        Args:
+            num_holes (int): number of regions to zero out
+            max_h_size (int): maximum height of the hole
+            max_w_size (int): maximum width of the hole
+
+        Targets:
+            image
+
+        Image types:
+            uint8, float32
+
+        Reference:
+        |  https://arxiv.org/abs/1708.04552
+        |  https://github.com/uoguelph-mlrg/Cutout/blob/master/util/cutout.py
+        |  https://github.com/aleju/imgaug/blob/master/imgaug/augmenters/arithmetic.py
+
+
+        """
+
+    def __init__(self, num_holes=0, max_h_size=0, max_w_size=0, p=1.0):
+        super(Cutout, self).__init__(p)
+        self.num_holes = num_holes
+        self.max_h_size = max_h_size
+        self.max_w_size = max_w_size
+
+    def apply(self, image, **params):
+        return F.cutout(image, self.num_holes, self.max_h_size, self.max_w_size)
 
 
 class JpegCompression(ImageOnlyTransform):
     """Decreases Jpeg compression of an image.
-        Was essential part of the [IEEE's Signal Processing Society - Camera Model Identification Challenge]
-            (https://www.kaggle.com/c/sp-society-camera-model-identification)
-
 
         Args:
-            quality_lower (float) - lower bound on the jpeg quality. Should be in [0, 100] range
-            quality_upper (float) - lower bound on the jpeg quality. Should be in [0, 100] range
+            quality_lower (float): lower bound on the jpeg quality. Should be in [0, 100] range
+            quality_upper (float): lower bound on the jpeg quality. Should be in [0, 100] range
 
         Targets:
             image
+
+        Image types:
+            uint8
         """
 
-    def __init__(self, quality_lower=100, quality_upper=100, p=0.5):
-        super().__init__(p)
+    def __init__(self, quality_lower=99, quality_upper=100, p=0.5):
+        super(JpegCompression, self).__init__(p)
 
         assert 0 <= quality_lower <= 100
         assert 0 <= quality_upper <= 100
@@ -377,16 +464,18 @@ class HueSaturationValue(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=20, p=0.5):
-        super().__init__(p)
+        super(HueSaturationValue, self).__init__(p)
         self.hue_shift_limit = to_tuple(hue_shift_limit)
         self.sat_shift_limit = to_tuple(sat_shift_limit)
         self.val_shift_limit = to_tuple(val_shift_limit)
 
     def apply(self, image, hue_shift=0, sat_shift=0, val_shift=0, **params):
-        assert image.dtype == np.uint8 or self.hue_shift_limit < 1.
         return F.shift_hsv(image, hue_shift, sat_shift, val_shift)
 
     def get_params(self):
@@ -409,10 +498,13 @@ class RGBShift(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, r_shift_limit=20, g_shift_limit=20, b_shift_limit=20, p=0.5):
-        super().__init__(p)
+        super(RGBShift, self).__init__(p)
         self.r_shift_limit = to_tuple(r_shift_limit)
         self.g_shift_limit = to_tuple(g_shift_limit)
         self.b_shift_limit = to_tuple(b_shift_limit)
@@ -436,10 +528,13 @@ class RandomBrightness(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, limit=0.2, p=0.5):
-        super().__init__(p)
+        super(RandomBrightness, self).__init__(p)
         self.limit = to_tuple(limit)
 
     def apply(self, img, alpha=0.2, **params):
@@ -459,10 +554,13 @@ class RandomContrast(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, limit=.2, p=.5):
-        super().__init__(p)
+        super(RandomContrast, self).__init__(p)
         self.limit = to_tuple(limit)
 
     def apply(self, img, alpha=0.2, **params):
@@ -481,10 +579,13 @@ class Blur(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def __init__(self, blur_limit=7, p=.5):
-        super().__init__(p)
+        super(Blur, self).__init__(p)
         self.blur_limit = to_tuple(blur_limit, 3)
 
     def apply(self, image, ksize=3, **params):
@@ -505,6 +606,9 @@ class MotionBlur(Blur):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, ksize=9, **params):
@@ -520,7 +624,13 @@ class MedianBlur(Blur):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
+    def __init__(self, blur_limit=7, p=0.5):
+        super(MedianBlur, self).__init__(p)
+        self.blur_limit = to_tuple(blur_limit, 3)
 
     def apply(self, image, ksize=3, **params):
         return F.median_blur(image, ksize)
@@ -536,10 +646,13 @@ class GaussNoise(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8
     """
 
     def __init__(self, var_limit=(10, 50), p=0.5):
-        super().__init__(p)
+        super(GaussNoise, self).__init__(p)
         self.var_limit = to_tuple(var_limit)
 
     def apply(self, img, var=30, **params):
@@ -561,10 +674,13 @@ class CLAHE(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8
     """
 
     def __init__(self, clip_limit=4.0, tile_grid_size=(8, 8), p=0.5):
-        super().__init__(p)
+        super(CLAHE, self).__init__(p)
         self.clip_limit = to_tuple(clip_limit, 1)
         self.tile_grid_size = tile_grid_size
 
@@ -583,6 +699,9 @@ class ChannelShuffle(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, **params):
@@ -597,6 +716,9 @@ class InvertImg(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8
     """
 
     def apply(self, img, **params):
@@ -604,8 +726,16 @@ class InvertImg(ImageOnlyTransform):
 
 
 class RandomGamma(ImageOnlyTransform):
+    """
+    Targets:
+        image
+
+    Image types:
+        uint8, float32
+    """
+
     def __init__(self, gamma_limit=(80, 120), p=0.5):
-        super().__init__(p)
+        super(RandomGamma, self).__init__(p)
         self.gamma_limit = gamma_limit
 
     def apply(self, img, gamma=1, **params):
@@ -626,7 +756,68 @@ class ToGray(ImageOnlyTransform):
 
     Targets:
         image
+
+    Image types:
+        uint8, float32
     """
 
     def apply(self, img, **params):
         return F.to_gray(img)
+
+
+class ToFloat(ImageOnlyTransform):
+    """Divides pixel values by `max_value` to get a float32 output array where all values lie in the range [0, 1.0].
+    If `max_value` is None the transform will try to infer the maximum value by inspecting the data type of the input
+    image.
+
+    See also: :class:`~albumentations.augmentations.transforms.FromFloat`.
+
+    Args:
+        max_value (float): maximum possible input value. Default: None.
+        p (float): probability of applying the transform. Default: 1.0.
+
+    Targets:
+        image
+
+    Image types:
+        any type
+    """
+
+    def __init__(self, max_value=None, p=1.0):
+        super(ToFloat, self).__init__(p)
+        self.max_value = max_value
+
+    def apply(self, img, **params):
+        return F.to_float(img, self.max_value)
+
+
+class FromFloat(ImageOnlyTransform):
+    """Takes an input array where all values should lie in the range [0, 1.0], multiplies them by `max_value` and then
+    casts the resulted value to a type specified by `dtype`. If `max_value` is None the transform will try to infer
+    the maximum value for the data type from the `dtype` argument.
+
+    This is the inverse transform for :class:`~albumentations.augmentations.transforms.ToFloat`.
+
+    Args:
+        max_value (float): maximum possible input value. Default: None.
+        dtype (string or numpy data type): data type of the output. See the `'Data types' page from the NumPy docs`_.
+            Default: 'uint16'.
+        p (float): probability of applying the transform. Default: 1.0.
+
+    Targets:
+        image
+
+    Image types:
+        float32
+
+    .. _'Data types' page from the NumPy docs:
+       https://docs.scipy.org/doc/numpy/user/basics.types.html
+    """
+
+    def __init__(self, dtype='uint16', max_value=None, p=1.0):
+        super(FromFloat, self).__init__(p)
+        self.dtype = np.dtype(dtype)
+        self.max_value = max_value
+
+    def apply(self, img, **params):
+        return F.from_float(img, self.dtype, self.max_value)

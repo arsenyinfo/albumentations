@@ -44,8 +44,8 @@ Examples
            HueSaturationValue(p=0.3),
        ], p=p)
 
-   image = np.ones((300, 300))
-   mask = np.ones((300, 300))
+   image = np.ones((300, 300, 3), dtype=np.uint8)
+   mask = np.ones((300, 300), dtype=np.uint8)
    whatever_data = "my name"
    augmentation = strong_aug(p=0.9)
    data = {"image": image, "mask": mask, "whatever_data": whatever_data, "additional": "hello"}
@@ -53,4 +53,5 @@ Examples
    image, mask, whatever_data, additional = augmented["image"], augmented["mask"], augmented["whatever_data"], augmented["additional"]
 
 
-For more examples see `example.ipynb <https://github.com/albu/albumentations/blob/master/example.ipynb>`_
+For more examples see `example.ipynb <https://github.com/albu/albumentations/blob/master/notebooks/example.ipynb>`_
+and `example_16_bit_tiff.ipynb <https://github.com/albu/albumentations/blob/master/notebooks/example_16_bit_tiff.ipynb>`_

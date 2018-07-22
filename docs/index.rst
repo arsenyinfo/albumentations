@@ -17,11 +17,24 @@ Project info
 
 Installation
 ------------
-You can use **pip** to install the latest version from GitHub:
+You can use pip to install albumentations:
+
+::
+
+    pip install albumentations
+
+If you want to get the latest version of the code before it is released on PyPI you can install the library from GitHub:
 
 ::
 
     pip install -U git+https://github.com/albu/albumentations
+
+
+Demo
+----
+You can use this `Google Colaboratory notebook <https://colab.research.google.com/drive/1JuZ23u0C0gx93kV0oJ8Mq0B6CBYhPLXy#scrollTo=GwFN-In3iagp&forceEdit=true&offline=true&sandboxMode=true>`_
+to adjust image augmentation parameters and see the resulting images.
+
 
 .. toctree::
    :hidden:
