@@ -7,18 +7,25 @@
 * Easy to customize
 * Easy to add other frameworks
 
-## Example usage:
+## Authors
+[Alexander Buslaev](https://www.linkedin.com/in/al-buslaev/)
+
+[Alex Parinov](https://www.linkedin.com/in/alex-parinov/)
+
+[Vladimir Iglovikov](https://www.linkedin.com/in/iglovikov/)
+
+## Example usage
 
 ```python
 from albumentations import (
-    HorizontalFlip, IAAPerspective, ShiftScaleRotate, CLAHE, RandomRotate90,
-    Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
-    IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, IAAPiecewiseAffine,
-    IAASharpen, IAAEmboss, RandomContrast, RandomBrightness, Flip, OneOf, Compose
+    CLAHE, RandomRotate90, Transpose, ShiftScaleRotate, Blur, OpticalDistortion, 
+    GridDistortion, HueSaturationValue, IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, 
+    MedianBlur, IAAPiecewiseAffine, IAASharpen, IAAEmboss, RandomContrast, RandomBrightness, 
+    Flip, OneOf, Compose
 )
 import numpy as np
 
-def strong_aug(p=.5):
+def strong_aug(p=0.5):
     return Compose([
         RandomRotate90(),
         Flip(),
@@ -29,13 +36,13 @@ def strong_aug(p=.5):
         ], p=0.2),
         OneOf([
             MotionBlur(p=.2),
-            MedianBlur(blur_limit=3, p=.1),
-            Blur(blur_limit=3, p=.1),
+            MedianBlur(blur_limit=3, p=0.1),
+            Blur(blur_limit=3, p=0.1),
         ], p=0.2),
-        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=.2),
+        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
         OneOf([
             OpticalDistortion(p=0.3),
-            GridDistortion(p=.1),
+            GridDistortion(p=0.1),
             IAAPiecewiseAffine(p=0.3),
         ], p=0.2),
         OneOf([
