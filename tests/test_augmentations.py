@@ -62,6 +62,7 @@ from albumentations import (
     ColorJitter,
     FDA,
     HistogramMatching,
+    PixelDistributionAdaptation,
     Perspective,
     Sharpen,
     Emboss,
@@ -72,6 +73,37 @@ from albumentations import (
     Compose,
 )
 
+DOMAIN_ADAPTATION_AUGMENTATIONS = [
+    [
+        HistogramMatching,
+        {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
+    ],
+    [
+        FDA,
+        {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
+    ],
+    [
+        PixelDistributionAdaptation,
+        {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)],
+         "read_fn": lambda x: x,
+         "transform_type": "pca",
+         },
+    ],
+    [
+        PixelDistributionAdaptation,
+        {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)],
+         "read_fn": lambda x: x,
+         "transform_type": "minmax",
+         },
+    ],
+    [
+        PixelDistributionAdaptation,
+        {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)],
+         "read_fn": lambda x: x,
+         "transform_type": "standard",
+         },
+    ],
+]
 
 @pytest.mark.parametrize(
     ["augmentation_cls", "params"],
@@ -108,17 +140,10 @@ from albumentations import (
         [MultiplicativeNoise, {}],
         [GridDropout, {}],
         [ColorJitter, {}],
-        [
-            HistogramMatching,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
-        [
-            FDA,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
         [Sharpen, {}],
         [Emboss, {}],
         [Superpixels, {}],
+        *DOMAIN_ADAPTATION_AUGMENTATIONS,
     ],
 )
 def test_image_only_augmentations(augmentation_cls, params, image, mask):
@@ -158,17 +183,10 @@ def test_image_only_augmentations(augmentation_cls, params, image, mask):
         [MultiplicativeNoise, {}],
         [GridDropout, {}],
         [ColorJitter, {}],
-        [
-            HistogramMatching,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
-        [
-            FDA,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
         [Sharpen, {}],
         [Emboss, {}],
         [Superpixels, {}],
+        *DOMAIN_ADAPTATION_AUGMENTATIONS,
     ],
 )
 def test_image_only_augmentations_with_float_values(augmentation_cls, params, float_image, mask):
@@ -308,14 +326,6 @@ def test_dual_augmentations_with_float_values(augmentation_cls, params, float_im
         [MultiplicativeNoise, {}],
         [GridDropout, {}],
         [ColorJitter, {}],
-        [
-            HistogramMatching,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
-        [
-            FDA,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
         [Perspective, {}],
         [Sharpen, {}],
         [Emboss, {}],
@@ -323,6 +333,7 @@ def test_dual_augmentations_with_float_values(augmentation_cls, params, float_im
         [Superpixels, {}],
         [Affine, {}],
         [PiecewiseAffine, {}],
+        *DOMAIN_ADAPTATION_AUGMENTATIONS,
     ],
 )
 def test_augmentations_wont_change_input(augmentation_cls, params, image, mask):
@@ -383,14 +394,6 @@ def test_augmentations_wont_change_input(augmentation_cls, params, image, mask):
         [MultiplicativeNoise, {}],
         [GridDropout, {}],
         [ColorJitter, {}],
-        [
-            HistogramMatching,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
-        [
-            FDA,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
         [Perspective, {}],
         [Sharpen, {}],
         [Emboss, {}],
@@ -398,6 +401,7 @@ def test_augmentations_wont_change_input(augmentation_cls, params, image, mask):
         [Superpixels, {}],
         [Affine, {}],
         [PiecewiseAffine, {}],
+        *DOMAIN_ADAPTATION_AUGMENTATIONS,
     ],
 )
 def test_augmentations_wont_change_float_input(augmentation_cls, params, float_image):
@@ -443,11 +447,6 @@ def test_augmentations_wont_change_float_input(augmentation_cls, params, float_i
         [GridDropout, {}],
         [HueSaturationValue, {}],
         [ColorJitter, {}],
-        [
-            HistogramMatching,
-            {"reference_images": [np.random.randint(0, 256, [100, 100], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
-        [FDA, {"reference_images": [np.random.randint(0, 256, [100, 100], dtype=np.uint8)], "read_fn": lambda x: x}],
         [Perspective, {}],
         [Sharpen, {}],
         [Emboss, {}],
@@ -455,6 +454,7 @@ def test_augmentations_wont_change_float_input(augmentation_cls, params, float_i
         [Superpixels, {}],
         [Affine, {}],
         [PiecewiseAffine, {}],
+        *DOMAIN_ADAPTATION_AUGMENTATIONS,
     ],
 )
 def test_augmentations_wont_change_shape_grayscale(augmentation_cls, params, image, mask):
@@ -524,14 +524,6 @@ def test_augmentations_wont_change_shape_grayscale(augmentation_cls, params, ima
         [MultiplicativeNoise, {}],
         [GridDropout, {}],
         [ColorJitter, {}],
-        [
-            HistogramMatching,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
-        [
-            FDA,
-            {"reference_images": [np.random.randint(0, 256, [100, 100, 3], dtype=np.uint8)], "read_fn": lambda x: x},
-        ],
         [Perspective, {}],
         [Sharpen, {}],
         [Emboss, {}],
@@ -539,6 +531,7 @@ def test_augmentations_wont_change_shape_grayscale(augmentation_cls, params, ima
         [Superpixels, {}],
         [Affine, {}],
         [PiecewiseAffine, {}],
+        *DOMAIN_ADAPTATION_AUGMENTATIONS,
     ],
 )
 def test_augmentations_wont_change_shape_rgb(augmentation_cls, params, image, mask):
